@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nagios>
+	<func id="TotalJobsNum">
+		<common-name>Total Jobs Num</common-name>
+		<type>single-value</type>
+		<sql-command>SELECT TOTAL_JOBS_IN_SYSTEM FROM QSYS2.SYSTEM_STATUS_INFO</sql-command>
+		<warning>200</warning>
+		<critical>300</critical>
+	</func>
+	<func id="TempStorageOverloadJobs">
+		<common-name>Temporary Storage Overload Jobs</common-name>
+		<type>muti-value</type>
+		<sql-command>SELECT SUBSTR(SUBSTR(JOB_NAME,8),POSSTR(SUBSTR(JOB_NAME,8),'/')+1)  AS JOB_NAME, TEMPORARY_STORAGE FROM TABLE(QSYS2.ACTIVE_JOB_INFO('YES', '', '', '')) X WHERE TEMPORARY_STORAGE > '100'</sql-command>
+		<warning>1</warning>
+		<critical>3</critical>
+	</func>
+	<func id="ReplyMsg">
+		<common-name>Reply Message Num</common-name>
+		<type>list</type>
+		<sql-command>SELECT MESSAGE_ID, SEVERITY, MESSAGE_TEXT FROM TABLE(QSYS2.MESSAGE_QUEUE_INFO(MESSAGE_FILTER => 'INQUIRY') )</sql-command>
+		<warning>1</warning>
+		<critical>3</critical>
+	</func>
+	<func id="BP_EATW">
+		<common-name>Elapsed active to wait thread in base pool</common-name>
+		<type>single-value</type>
+		<sql-command>SELECT ELAPSED_ACTIVE_TO_WAIT FROM QSYS2.MEMORY_POOL_INFO WHERE POOL_NAME='*BASE'</sql-command>
+		<warning>5000</warning>
+		<critical>6000</critical>
+	</func>
+        <func id="MBS">
+                <common-name>Bytes sent remotely</common-name>
+                <type>single-value</type>
+	<sql-command>SELECT CAST(MAX(BYTES_SENT_REMOTELY) AS INT) AS BYTES_SENT_REMOTELY FROM QSYS2.NETSTAT_INFO</sql-command>
+                <warning>20000000</warning>
+                <critical>50000000</critical>
+        </func>
+</nagios>
